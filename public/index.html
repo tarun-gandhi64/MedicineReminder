@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>  ///
+  <meta charset="utf-8" />
+  <title>Medicine Reminder App — Advanced Mini Project</title>
+  <style>
+    :root { --primary: #3498db; --danger: #e74c3c; --card: #fff; }
+    body { font-family: Arial, sans-serif; background:#f2f6fb; margin:0; padding:20px; color:#222; }
+    header { text-align:center; margin-bottom:18px; }
+    .container { display:flex; gap:20px; align-items:flex-start; justify-content:center; flex-wrap:wrap; }
+    .card { background:var(--card); padding:14px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); width:360px; }
+    h2 { margin:6px 0 10px; }
+    form input, form select { width:100%; padding:8px; margin:6px 0; border-radius:6px; border:1px solid #ccc; box-sizing:border-box; }
+    .row { display:flex; gap:8px; }
+    .btn { background:var(--primary); color:white; padding:8px 12px; border:none; border-radius:6px; cursor:pointer; }
+    .btn.secondary { background:#95a5a6; }
+    .list { max-height:420px; overflow:auto; }
+    .rem { display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #f0f0f0; }
+    .rem .meta { text-align:left; }
+    .pill { background:#ecf6ff; padding:6px 8px; border-radius:6px; font-size:13px; display:inline-block; }
+    .danger { color:var(--danger); font-weight:bold; }
+    .small { font-size:12px; color:#555; }
+    .history { max-height:420px; overflow:auto; }
+    .history .hitem { padding:8px; border-bottom:1px solid #f0f0f0; font-size:14px; }
+    .controls button { margin-left:6px; }
+    .badge { background:#f9f1a5; padding:4px 6px; border-radius:6px; font-size:12px; }
+    footer { text-align:center; margin-top:16px; color:#666; font-size:13px; }
+    audio { display:none; }
+  </style>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>💊 Pill Pal-Medicine Reminder App</h1>
+    <p class="small">Advanced mini-project features: repeat, snooze, taken/missed history, refill alerts & notifications</p>
+  </header>
+
+  <div class="container">
+    <!-- Add / Edit card -->
+    <div class="card" style="min-width:360px;">
+      <h2>Add Medicine</h2>
+      <form id="remForm">
+        <input id="name" placeholder="Medicine name (e.g., Paracetamol)" required />
+        <input id="dosage" placeholder="Dosage (e.g., 500 mg)" />
+        <input id="instructions" placeholder="Instructions (e.g., after food)" />
+        <div class="row">
+          <input id="time" type="time" required />
+          <input id="quantity" type="number" placeholder="Quantity" min="0" style="width:120px;" />
+        </div>
+        <div class="row">
+          <select id="repeatType" style="flex:1;">
+            <option value="none">Repeat: None</option>
+            <option value="daily">Repeat: Daily</option>
+            <option value="every_x_hours">Repeat: Every X hours</option>
+          </select>
+          <input id="repeatHours" type="number" min="1" placeholder="Hours (if every X)" style="width:120px;" />
+        </div>
+
+        <div class="row">
+          <input id="refillThreshold" type="number" placeholder="Refill threshold (e.g., 3)" style="width:180px;" />
+          <button class="btn" type="submit">Add</button>
+        </div>
+
+        <input id="editId" type="hidden" />
+      </form>
+
+      <h3 style="margin-top:10px;">Quick actions</h3>
+      <div class="row" style="margin-top:6px;">
+        <button id="refreshBtn" class="btn secondary">Refresh</button>
+        <button id="askPerm" class="btn">Allow Notifications</button>
+      </div>
+      <p class="small" style="margin-top:8px;">Tip: keep this page open to receive browser notifications & sound.</p>
+      <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+    </div>
+
+    <!-- Reminders list -->
+    <div class="card" style="min-width:360px;">
+      <h2>Your Reminders <span id="countBadge" class="badge"></span></h2>
+      <div class="list" id="reminderList"></div>
+    </div>
+
+    <!-- History & refill -->
+    <div class="card" style="min-width:360px;">
+      <h2>History & Refill Alerts</h2>
+      <div style="margin-bottom:8px;">
+        <strong>Refill alerts:</strong>
+        <div id="refillAlerts" class="small"></div>
+      </div>
+      <h3>Recent History</h3>
+      <div class="history" id="historyList"></div>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow rounded-xl">
+    <h2 class="text-xl font-semibold mb-3">🩺 Health Problem Helper</h2>
+
+    <select id="symptomSelect" class="p-3 border rounded-lg w-full mb-4">
+        <option value="">Select a health issue</option>
+        <option value="fever">Fever</option>
+        <option value="headache">Headache</option>
+        <option value="cold">Cold & Cough</option>
+        <option value="acidity">Acidity</option>
+        <option value="stomach">Stomach Pain</option>
+        <option value="allergy">Allergy</option>
+        <option value="bodypain">Body Pain</option>
+    </select>
+
+    <button onclick="getRecommendation()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+        Get Recommendation
+    </button>
+
+    <div id="recommendationBox" class="mt-4 p-4 border rounded-lg bg-gray-50 hidden"></div>
+</div>
+
+<!-- <div class="chatbot-container">
+    <h2 class="chat-header">AI Health Assistant 🤖</h2>
+
+    <div id="chatbox" class="chatbox"></div>
+
+    <div class="chat-input-area">
+        <input id="userInput" type="text" placeholder="Ask your health question..." />
+        <button onclick="sendMessage()">Send</button>
+    </div> -->
+</div>
+
+
+  <footer>
+    Built with Node.js + Express + MongoDB — Database: <b>MedicineApp</b>
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>
